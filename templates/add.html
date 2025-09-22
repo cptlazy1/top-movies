@@ -11,6 +11,21 @@
         <div class="mb-3">
             {{ form.title.label(class="form-label") }}
             {{ form.title(class="form-control", placeholder="Enter movie title") }}
+            {{ form.year.label(class="form-label mt-3") }}
+            {{ form.year(class="form-control", placeholder="Enter release year") }}
+            {{ form.description.label(class="form-label mt-3") }}
+            {{ form.description(class="form-control", placeholder="Enter movie description", rows="4") }}
+            {{ form.rating.label(class="form-label mt-3") }}
+            {{ form.rating(class="form-control", placeholder="Enter your rating (0-10)") }}
+            {{ form.ranking.label(class="form-label mt-3") }}
+            {{ form.ranking(class="form-control", placeholder="Enter movie ranking") }}
+            {{ form.review.label(class="form-label mt-3") }}
+            {{ form.review(class="form-control", placeholder="Enter your review", rows="4") }}
+            {{ form.img_url.label(class="form-label mt-3") }}
+            {{ form.img_url(class="form-control", placeholder="Enter image URL") }}
+            {{ form.submit(class="btn btn-primary mt-3") }}
+
+            {% block errors %}
             {% if form.title.errors %}
             <div class="text-danger">
                 {% for error in form.title.errors %}
@@ -20,3 +35,7 @@
             </div>
             {% endif %}
             {% endblock %}
+        </div>
+    </form>
+</div>
+{% endblock %}
