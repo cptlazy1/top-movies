@@ -5,5 +5,18 @@
 {% block content %}
 <div class="content">
     <h1 class="heading">Add a Movie</h1>
-</div>
-{% endblock %}
+    <p class="description">Add a new movie to your list</p>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="mb-3">
+            {{ form.title.label(class="form-label") }}
+            {{ form.title(class="form-control", placeholder="Enter movie title") }}
+            {% if form.title.errors %}
+            <div class="text-danger">
+                {% for error in form.title.errors %}
+                <span>{{ error }}</span>
+                {% endfor %}
+
+            </div>
+            {% endif %}
+            {% endblock %}

@@ -32,25 +32,67 @@ class Movie(db.Model):
     review: Mapped[str] = mapped_column(String(250), nullable=True)
     img_url: Mapped[str] = mapped_column(String(250), nullable=False)
 
+class MovieForm(FlaskForm):
+    rating = StringField('Your Rating', validators=[DataRequired()])
+    review = StringField('Your Review', validators=[DataRequired()])
+    submit = SubmitField('Done')
+
+class AddMovieForm(FlaskForm):
+    title = StringField('Movie Title', validators=[DataRequired()])
+    
+    submit = SubmitField('Add Movie')
+
 # CREATE TABLE
 with app.app_context():
     db.create_all()
 
-    # second_movie = Movie(
-    #     title="Avatar The Way of Water",
-    #     year=2022,
-    #     description="Set more than a decade after the events of the first film, learn the story of the Sully family (Jake, Neytiri, and their kids), the trouble that follows them, the lengths they go to keep each other safe, the battles they fight to stay alive, and the tragedies they endure.",
-    #     rating=7.3,
-    #     ranking=9,
-    #     review="I liked the water.",
-    #     img_url="https://image.tmdb.org/t/p/w500/t6HIqrRAclMCA60NsSmeqe9RmNV.jpg"
-    # )
-    # db.session.add(second_movie)
-    # db.session.commit()
-
 @app.route("/")
 def home():
-    return render_template("index.html")
+    result = db.session.execute(db.select(Movie))
+    all_movies = result.scalars().all()
+    return render_template("index.html", all_movies=all_movies)
+
+@app.route("/edit/<int:movie_id>", methods=["GET", "POST"])
+def edit(movie_id):
+    movie = db.get_or_404(Movie, movie_id)
+    form = MovieForm(request.form, obj=movie)
+    if request.method == "POST":
+        movie.rating = float(form.rating.data)
+        movie.review = form.review.data
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template("edit.html", movie=movie, form=form)
+
+@app.route("/delete/<int:movie_id>", methods=["GET", "POST"])
+def delete(movie_id):
+    movie_to_delete = db.get_or_404(Movie, movie_id)
+    db.session.delete(movie_to_delete)
+    db.session.commit()
+    return redirect(url_for('home'))
+
+@app.route("/add", methods=["GET", "POST"])
+def add():
+    if request.method == "POST":
+        movie_title = request.form["movie_title"]
+        movie_year = request.form["movie_year"]
+        movie_description = request.form["movie_description"]
+        movie_rating = request.form["movie_rating"]
+        movie_ranking = request.form["movie_ranking"]
+        movie_review = request.form["movie_review"]
+        movie_img_url = request.form["movie_img_url"]
+        new_movie = Movie(
+            title=movie_title,
+            year=int(movie_year),
+            description=movie_description,
+            rating=float(movie_rating) if movie_rating else None,
+            ranking=int(movie_ranking) if movie_ranking else None,
+            review=movie_review,
+            img_url=movie_img_url
+        )
+        db.session.add(new_movie)
+        db.session.commit()
+        return redirect(url_for('home'))
+    return render_template("add.html")
 
 
 if __name__ == '__main__':
